@@ -1149,8 +1149,11 @@ class _ESPipeline(BaseModel):
     name: str
     """Name of the pipeline."""
 
-    processors: list[ESProcessor]
+    processors: list[ESProcessor] = []
     """List of processors contained within the pipeline."""
+
+    on_failure: list[ESProcessor] = []
+    """List of fail processors contained within the pipeline."""
 
 
 class ESIngestPipelineParser:
@@ -1280,8 +1283,8 @@ class ESIngestPipelineParser:
 
         return self.__class__(processors=processors)
 
-    def validate(self, raw: Any, /) -> list[dict]:
-        """Validate the provided pipeline.
+    def validate_processors(self, raw: Any, /) -> list[dict]:
+        """Validate the provided pipeline's processors.
 
         :param raw: Pipeline or processor list dictionary, or
             JSON-encoded version of the same.
@@ -1304,8 +1307,32 @@ class ESIngestPipelineParser:
             exclude_defaults=True,
         )
 
-    def convert(self, raw: Any, /) -> Pipeline:
-        """Convert a raw list of processors into a list of processors.
+    def validate_failure_processors(self, raw: Any, /) -> list[dict]:
+        """Validate the provided pipeline's failure processors.
+
+        :param raw: Pipeline or processor list dictionary, or
+            JSON-encoded version of the same.
+        :return: Validated object, as Python.
+        """
+        if isinstance(raw, str):
+            obj = self._type_adapter.validate_json(raw)
+        else:
+            obj = self._type_adapter.validate_python(raw)
+
+        if isinstance(obj, list):
+            processors = obj
+        else:
+            processors = obj.on_failure
+
+        return self._processors_type_adapter.dump_python(
+            processors,
+            mode="json",
+            by_alias=True,
+            exclude_defaults=True,
+        )
+
+    def parse(self, raw: Any, /) -> Pipeline:
+        """Convert a raw list of processors into a pipeline.
 
         :param raw: Pipeline or processor list dictionary, or
             JSON-encoded version of the same.
@@ -1323,6 +1350,7 @@ class ESIngestPipelineParser:
             name = obj.name
             processors = obj.processors
 
+        # TODO: Read on_failure processors.
         return Pipeline(
             name=name,
             processors=[proc.value.convert() for proc in processors],
@@ -1388,29 +1416,46 @@ def parse_ingest_pipeline(
     *,
     parser: ESIngestPipelineParser = DEFAULT_INGEST_PIPELINE_PARSER,
 ) -> Pipeline:
-    """Parse an ElasticSearch ingest pipeline.
+    """Parse an ElasticSearch ingest pipeline's processors.
 
-    :param raw: Raw ingest pipeline, either as a dictionary or a raw
-        JSON-encoded string.
-    :param parser: Parser to use to read the pipeline.
-    :return: Parsed pipeline.
+    :param raw: Raw ingest pipeline to parse the processors from, either
+        provided as a dictionary or a raw JSON-encoded string.
+    :param parser: Parser to use to read the pipeline's processors.
+    :return: Parsed ElasticSearch processors.
     """
-    return parser.convert(raw)
+    return parser.parse(raw)
 
 
-def validate_ingest_pipeline(
+def validate_ingest_pipeline_processors(
     raw: Any,
     /,
     *,
     parser: ESIngestPipelineParser = DEFAULT_INGEST_PIPELINE_PARSER,
 ) -> list[dict]:
-    """Validate an ElasticSearch ingest pipeline.
+    """Validate an ElasticSearch ingest pipeline's processors.
 
-    :param raw: Raw ingest pipeline to validate, either as a dictionary
-        or a raw JSON-encoded string.
+    :param raw: Raw ingest pipeline to validate the processors from, either
+        provided as a dictionary or a raw JSON-encoded string.
+    :param parser: Parser to use to validate the pipeline's processors.
     :return: Validated ElasticSearch processors.
     """
-    return parser.validate(raw)
+    return parser.validate_processors(raw)
+
+
+def validate_ingest_pipeline_failure_processors(
+    raw: Any,
+    /,
+    *,
+    parser: ESIngestPipelineParser = DEFAULT_INGEST_PIPELINE_PARSER,
+) -> list[dict]:
+    """Validate an ElasticSearch ingest pipeline's failure processors.
+
+    :param raw: Raw ingest pipeline to validate the failure processors from,
+        either provided as a dictionary or a raw JSON-encoded string.
+    :param parser: Parser to use to validate the pipeline's failure processors.
+    :return: Validated ElasticSearch failure processors.
+    """
+    return parser.validate_failure_processors(raw)
 
 
 def render_as_ingest_pipeline(pipeline: Pipeline, /) -> list:

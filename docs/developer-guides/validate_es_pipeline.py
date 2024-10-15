@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from mustash.es import validate_ingest_pipeline
+from mustash.es import validate_ingest_pipeline_processors
 
 
 raw_pipeline = {
@@ -10,4 +10,4 @@ raw_pipeline = {
     ],
 }
 
-print(validate_ingest_pipeline(raw_pipeline))
+print(validate_ingest_pipeline_processors(raw_pipeline))
