@@ -1150,11 +1150,11 @@ class _ESPipeline(BaseModel):
     name: str
     """Name of the pipeline."""
 
-    processors: list[ESProcessor] = []
-    """List of processors contained within the pipeline."""
+    processors: list[_ESProcessorWrapper] = []
+    """Processor list."""
 
-    on_failure: list[ESProcessor] = []
-    """List of fail processors contained within the pipeline."""
+    on_failure: list[_ESProcessorWrapper] = []
+    """Failure processor list."""
 
 
 class ESIngestPipelineParser:
@@ -1245,8 +1245,11 @@ class ESIngestPipelineParser:
         class ESPipeline(_ESPipeline):
             """ElasticSearch pipeline, as an object to be parsed."""
 
-            processors: es_processor_list
-            """Processors list."""
+            processors: es_processor_list = []
+            """Processor list."""
+
+            on_failure: es_processor_list = []
+            """Failure processor list."""
 
         self._name = name
         self._processors = processors.copy()

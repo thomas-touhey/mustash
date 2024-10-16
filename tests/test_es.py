@@ -32,7 +32,11 @@ from __future__ import annotations
 
 import pytest
 
-from mustash.es import parse_ingest_pipeline
+from mustash.es import (
+    parse_ingest_pipeline,
+    validate_ingest_pipeline_failure_processors,
+    validate_ingest_pipeline_processors,
+)
 from mustash.processors import Processor, RemoveProcessor, SetProcessor
 
 
@@ -66,3 +70,31 @@ from mustash.processors import Processor, RemoveProcessor, SetProcessor
 def test_parse(raw: list, expected: list[Processor]) -> None:
     """Test ElasticSearch ingest pipeline parsing."""
     assert parse_ingest_pipeline(raw).processors == expected
+
+
+@pytest.mark.parametrize(
+    "raw",
+    (
+        {
+            "name": "xyz",
+            "processors": [{"dissect": {"field": "a.b", "pattern": "%{x}"}}],
+        },
+        {
+            "name": "xyz",
+            "on_failure": [
+                {"append": {"field": "a.b", "value": "c"}},
+                {"dissect": {"field": "c", "pattern": "%{+hello->}"}},
+            ],
+        },
+    ),
+)
+def test_validate(raw: dict) -> None:
+    """Check validating an ingest pipeline."""
+    assert validate_ingest_pipeline_processors(raw) == raw.get(
+        "processors",
+        [],
+    )
+    assert validate_ingest_pipeline_failure_processors(raw) == raw.get(
+        "on_failure",
+        [],
+    )
