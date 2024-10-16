@@ -452,13 +452,13 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "lscl"
-version = "0.2"
+version = "0.3"
 description = "Logstash configuration language handling"
 optional = false
 python-versions = "<4.0,>=3.11"
 files = [
-    {file = "lscl-0.2-py3-none-any.whl", hash = "sha256:c7c808e2ce717f33dae6f4b63e5a267a3608bd5b62d114de0acc4a73e4a0a890"},
-    {file = "lscl-0.2.tar.gz", hash = "sha256:6746ff596f22c02d1110813fa8f63b2534b8e0c644868dc55b0ec0649ccbe5b1"},
+    {file = "lscl-0.3-py3-none-any.whl", hash = "sha256:0b22a7692989209a15cc8bf6a08bb2719527cb904172ba9f49d77a257991f644"},
+    {file = "lscl-0.3.tar.gz", hash = "sha256:494148fbfff12760549f96967b99440f252ce4870c64d319467055961dd5968a"},
 ]
 
 [package.dependencies]
@@ -1387,4 +1387,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "579495511c1b1e39d4262c20a0f4d85d2fc66da9d736beee71d587771c8e1f88"
+content-hash = "5b352e835bb6135a17da07c68a5fa8e973a8dbde8e133690703ccd1daf70bdd5"
