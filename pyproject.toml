@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "mustash"
-version = "0.2"
+version = "0.2.1"
 description = "Portable ingest pipelines for documents"
 readme = "README.rst"
 homepage = "https://mustash.touhey.pro/"
