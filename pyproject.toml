@@ -36,6 +36,7 @@ eval-type-backport = { version = "^0.2", markers = "python_version < '3.10'" }
 lscl = "^0.3"
 pydantic = "^2.7.1"
 typing-extensions = "^4.12.2"
+dissec = "^0.1"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.0"

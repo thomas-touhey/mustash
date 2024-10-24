@@ -36,6 +36,7 @@ import re
 from typing import Annotated, Any, Literal, TypeVar, Union
 
 from annotated_types import Ge, Lt
+from dissec.patterns import Pattern as DissectPattern
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -48,7 +49,6 @@ from pydantic import (
 from typing_extensions import TypeAliasType
 
 from .core import Element, PainlessCondition, Pipeline, Processor
-from .es_dissect import ESDissectPattern
 from .processors import (
     AppendProcessor,
     BooleanProcessor,
@@ -456,7 +456,7 @@ class ESDissectProcessor(ESProcessor):
     """
 
     field: str
-    pattern: ESDissectPattern
+    pattern: DissectPattern
     append_separator: str = ""
     ignore_missing: bool = False
 

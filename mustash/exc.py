@@ -30,23 +30,50 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 
 if TYPE_CHECKING:
     from .core import Document, Processor  # type: ignore[attr-defined]
 
+    DecodeErrorType = TypeVar("DecodeErrorType", bound="DecodeError")
 
-class MustashException(Exception):
+
+class Error(Exception):
     """An error has occurred in a Mustash function."""
 
     __slots__ = ()
 
-    def __init__(self, message: str, /) -> None:
-        super().__init__(message)
+    def __init__(self, message: str | None = None, /) -> None:
+        super().__init__(message or "")
 
 
-class DropException(MustashException):
+class DecodeError(Error, ValueError):
+    """A decode error has occurred in a string."""
+
+    __slots__ = ("line", "column", "offset")
+
+    def __init__(
+        self,
+        message: str | None,
+        /,
+        *,
+        line: int,
+        column: int,
+        offset: int,
+    ) -> None:
+        message = message or "A decoding error has occurred."
+        super().__init__(
+            f"At line {line}, column {column}: "
+            + f"{message[0].lower()}{message[1:]}",
+        )
+
+        self.line = line
+        self.column = column
+        self.offset = offset
+
+
+class DropException(Error):
     """A document should be dropped."""
 
     __slots__ = ()
@@ -55,7 +82,7 @@ class DropException(MustashException):
         super().__init__("Document should be dropped")
 
 
-class PipelineFailureException(MustashException):
+class PipelineFailureException(Error):
     """A pipeline has failed on a provided document.
 
     This exception may be raised by :py:meth:`Pipeline.apply`, to provide
